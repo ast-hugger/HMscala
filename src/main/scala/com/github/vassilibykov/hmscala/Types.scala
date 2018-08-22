@@ -46,7 +46,7 @@ case class TFunction(from: Type, to: Type) extends Type {
   }
 
   override def applySubstitution(subst: Substitution): Type =
-    TFunction(from.applySubstitution(subst), to.applySubstitution(subst))
+    TFunction(subst(from), subst(to))
 
   override def mostGeneralUnifier(other: Type): Either[String, Substitution] = other match {
     case fun: TFunction =>
