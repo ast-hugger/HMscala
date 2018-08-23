@@ -20,7 +20,7 @@ class Environment(private val bindings: Map[String, TypeScheme]) extends Substit
     case Variable(name) => bindings.get(name)
       .map(it => (it.instantiate(), Substitution()))
       .getOrElse(throw new TypeError(s"Unbound variable $name"))
-    case Application(fun, arg) => {
+    case Application(fun, arg) =>
       val a = generateTypeVar()
       val (funType, funSubst) = inferTypeW(fun)
       val (argType, argSubst) = funSubst(this).inferTypeW(arg)
@@ -29,13 +29,11 @@ class Environment(private val bindings: Map[String, TypeScheme]) extends Substit
         case Left(message) => throw new TypeError(message)
       }
       (mgu(a), mgu + argSubst + funSubst)
-    }
-    case Abstraction(varName, body) => {
+    case Abstraction(varName, body) =>
       val a = generateTypeVar()
       val env = (this without varName) + Environment(varName, a)
       val (bodyType, bodySubst) = env.inferTypeW(body)
       (TFunction(bodySubst(a), bodyType), bodySubst)
-    }
   }
 
   def inferTypeJ(expr: Expression, unifier: TypeUnifier): Type = expr match {
@@ -43,18 +41,16 @@ class Environment(private val bindings: Map[String, TypeScheme]) extends Substit
     case _: BoolLiteral => TBool
     case v: Variable =>
       (bindings get v.name).map(_.instantiate()) getOrElse (throw new TypeError(s"Unbound variable ${v.name}"))
-    case app: Application => {
+    case app: Application =>
       val funType = inferTypeJ(app.fun, unifier)
       val argType = inferTypeJ(app.arg, unifier)
       val a = generateTypeVar()
       unifier.unify(funType, TFunction(argType, a))
       unifier.find(a)
-    }
-    case abs: Abstraction => {
+    case abs: Abstraction =>
       val a = generateTypeVar()
       val rType = this.withName(abs.varName, TypeScheme(a)).inferTypeJ(abs.body, unifier)
       TFunction(unifier.find(a), unifier.find(rType))
-    }
   }
 
   private var serial = -1

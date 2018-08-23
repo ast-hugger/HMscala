@@ -26,5 +26,5 @@ object Substitution {
 }
 
 trait Substitutable[T] {
-  def applySubstitution(subst: Substitution): T
+  private[hmscala] def applySubstitution(subst: Substitution): T
 }

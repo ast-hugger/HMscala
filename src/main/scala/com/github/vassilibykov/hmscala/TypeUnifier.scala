@@ -10,10 +10,9 @@ class TypeUnifier {
   def unify(a: Type, b: Type): Unit = {
     (find(a), find(b)) match {
       case (_, _) if a == b =>
-      case (af: TFunction, bf: TFunction) => {
+      case (af: TFunction, bf: TFunction) =>
         unify(af.from, bf.from)
         unify(af.to, bf.to)
-      }
       case (av: TVariable, bt) => unifyVar(av, bt)
       case (at, bv: TVariable) => unifyVar(bv, at)
       case _ => throw new TypeError(s"types $a and $b do not match")
